@@ -1,0 +1,22 @@
+{
+  "name": "securitypro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon",
+    "start": "node app"
+  },
+  "author": "devsamahd",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^7.0.2",
+    "node-fetch": "^3.3.1",
+    "nodemon": "^2.0.21",
+    "randomstring": "^1.2.3"
+  }
+}
