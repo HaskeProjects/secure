@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const reSchema = new mongoose.Schema({
-        name: {type:String, required:true},
+        firstname: {type:String, required:true},
+        lastname: {type:String, required:true}, 
         esId: {type: mongoose.Types.ObjectId},
         apartment: {type:String, required: true},
         number: {type:Number, require:true}
