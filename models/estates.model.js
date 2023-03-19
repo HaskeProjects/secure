@@ -41,4 +41,4 @@ esSchema.pre('remove',async function(next){
         next()
 })
 
-module.exports = mongoose.model('estates', esSchema)
+module.exports = mongoose.model('estates', esSchema) 
