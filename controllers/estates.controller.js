@@ -1,18 +1,26 @@
+const Chair = require("../models/chairmen.model")
 const Estates = require("../models/estates.model")
-
-const getAllEs = (req, res) => {
-    const data = Estates.find().lean()
+const randomizer = require('randomstring')
+const bcrypt = require('bcrypt')
+const getAllEs = async(req, res) => {
+    const data = await Estates.find().lean()
     return res.json(data)
 }
+// JPGJD567
 
 const addNewEs = async(req, res) => {
-    const {name, location} = req.body
+    const {name, location, chfname, chlname, number, email} = req.body
     const estate = new Estates({name, location})
     const data = await estate.save()
-    return res.json(data)
+    const password = randomizer.generate({length:5, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
+    console.log(password)
+    const hashed = await bcrypt.hash(password, 10)
+    const chair = new Chair({firstname: chfname, lastname: chlname, esId:data._id, number, password: hashed, email})
+    await chair.save()
+    return res.json({data, chair})
 }
 
-const editEs = async(req, res) =>{
+const editEs = async(req, res) => {
     const esId = req.body.orgId
     const newName = req.body.name
     const found = await Estates.findOne({_id: esId}).exec()
