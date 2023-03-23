@@ -1,21 +1,8 @@
+
 const sendSMS = async(num, message) => {
-    const url = 'https://app.multitexter.com/v2/app/sendsms';
+    const url = `https://app.multitexter.com/v2/app/sms?email=eaogolekwu@gmail.com&password=multitxt1x@&message=${message}&sender_name=IPSS&recipients=${num}&forcednd=1`
     try{
-        const data = { 
-            email: '',
-            password: '',
-            message,
-            sender_name: '',
-            recipients: num
-        }
-
-        const fetchData = {
-        method: 'POST',
-        body: data,
-        headers: new Headers()
-        }
-
-        const tr = await fetch(url, fetchData)
+        const tr = await fetch(url)
         const res = await tr.json()
         return res
     }catch(e){
