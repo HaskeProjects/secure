@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 require('dotenv').config()
 require('./lib/db')()
-const PORT = process.env.PORT || 330
+const PORT = process.env.PORT || 3210
 App.use(cors({
     origin:['http://localhost:3000'], 
     credentials:true,
