@@ -7,7 +7,7 @@ require('dotenv').config()
 require('./lib/db')()
 const PORT = process.env.PORT || 3210
 App.use(cors({
-    origin:['http://localhost:3000'], 
+    origin:['http://localhost:3000', 'https://ipss.vercel.app'], 
     credentials:true,
     optionSuccessStatus:200
  }))
