@@ -3,8 +3,8 @@ const Chair = require('./chairmen.model')
 const Residents =  require('./residents.model')
 const Visitors = require('./visitors.model')
 const esSchema = new mongoose.Schema({
-        name: {type:String, required:true},
-        location: {type:String, require:true}
+        name: {type:String},
+        location: {type:String}
 },{
         timestamps:true,
         toJSON:{virtuals:true},
@@ -12,7 +12,7 @@ const esSchema = new mongoose.Schema({
 })
 
 esSchema.virtual('chairman',{
-        ref:'chairmans',
+        ref:'chairmens',
         foreignField: 'esId',
         localField: '_id',
         justOne: true
@@ -30,6 +30,31 @@ esSchema.virtual('totalVisits',{
         foreignField: 'esId',
         localField: '_id',
         count: true
+})
+
+esSchema.virtual('totalSignin',{
+        ref:'visitors',
+        foreignField: 'esId',
+        localField: '_id',
+        match:{status: 'checkedin'},
+        count: true
+})
+esSchema.virtual('totalExpected',{
+        ref:'visitors',
+        foreignField: 'esId',
+        localField: '_id',
+        match:{status: 'invited'},
+        count: true
+})
+esSchema.virtual('vi',{
+        ref:'visitors',
+        foreignField: 'esId',
+        localField: '_id'
+})
+esSchema.virtual('re',{
+        ref:'residents',
+        foreignField: 'esId',
+        localField: '_id'
 })
 
 
