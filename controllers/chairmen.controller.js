@@ -1,5 +1,6 @@
 const Chair = require('../models/chairmen.model')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const getAllChair = (req, res) => {
     return res.status(201).json({message: 'authorized'})
@@ -25,14 +26,13 @@ const ChairmanLogin = async(req, res) => {
 
     const match = await bcrypt.compare(password, found.password)
     if(match){  
-        req.session.regenerate(function (err) {
-            if (err) console.log(err)
-            req.session.repid = found.esId
-            return req.session.save(function (err) {
-                if (err) return console.log(err)
-                return res.status(201).json({id: found.esId})
-              })
-        })
+        const accessToken = jwt.sign(
+            {userr: found.esId},
+            process.env.ACCESS_TOKEN_SECRET,
+            {expiresIn: '30m'}
+        )
+        
+        return res.status(201).json({id:found.esId, accessToken, role:2001})
     }
     else{
         return res.status(404).json({type:"wrongpass"})

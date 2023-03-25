@@ -1,19 +1,20 @@
 const { getAllEstateRecidents, createNewRe, EditRe, deleteRe, requestRat, verifyRat, getSingleRe } = require('../controllers/residents.controller')
 const { verifySession, verifyRepSession } = require('../middleware/verify')
+const verifyJWT = require('../middleware/verifyJWT')
 
 const router = require('express').Router()
 
 router.route('/')
-        .post(verifyRepSession, createNewRe)
-        .put(verifyRepSession, EditRe)
+        .post(verifyJWT, verifyRepSession, createNewRe)
+        .put(verifyJWT,verifyRepSession, EditRe)
         
 router.route('/single')
-        .get(verifySession, getSingleRe)
+        .get(verifyJWT,verifySession, getSingleRe)
 router.route('/:number')
         .get(requestRat)
         .post(verifyRat)
-        .delete(verifyRepSession, deleteRe)
-router.route('/:skip/:limit').get(verifyRepSession, getAllEstateRecidents)
+        .delete(verifyJWT,verifyRepSession, deleteRe)
+router.route('/:skip/:limit').get(verifyJWT, verifyRepSession, getAllEstateRecidents)
 
 
 module.exports = router

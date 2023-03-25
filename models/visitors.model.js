@@ -4,6 +4,8 @@ const viSchema = new mongoose.Schema({
         number:{type:Number, required:true},
         status:{type:String, default: "invited"},
         inviteCode: {type:String, required: true},
+        address: {type:String, required: true},
+        pov:{type:String, required: true},
         checkOut:{type:String, default: "0"},
         resId: {type: mongoose.Types.ObjectId},
         esId: {type: mongoose.Types.ObjectId},

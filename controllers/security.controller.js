@@ -1,48 +1,65 @@
 const securityModel = require("../models/security.model")
 const bcrypt = require('bcrypt')
 const visitorsModel = require("../models/visitors.model")
+const Formidable = require('formidable')
+const fsPromises = require('fs').promises
+const path = require('path')
+const jwt = require('jsonwebtoken')
 
 const getSecurity = async(req, res) => {
-    const secId = req.session.secuser
+    const secId = req.user
     const sec = await securityModel.findOne({_id: secId }).lean().populate({path: 'expectedVisitors expectedToCheckout estate'})
     return res.json(sec)
 }
 
-const checkIn = async(req, res) => {
+const checkout = async(req, res) => {
     const {code} = req.body 
     const checkCode = await visitorsModel.findOne({inviteCode: code}).exec()
     if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
     if(checkCode.status === 'invited'){
-        checkCode.status = 'checkedin'
-        await checkCode.save()
-        return res.json({message: 'This person has been checked in'})
-    }else if(checkCode.status === 'checkedin'){
-        return res.status(400).json({message:`This person has already been checked in`})    
+        return res.status(400).json({message:`This person has not been checked in`})    
     }
     else if(checkCode.status === 'checkedout'){
         return res.status(401).json({message:`This person has already been checked in and out`})    
     }
-    return res.status(403).json({message: 'unknown error'})
+    checkCode.checkOut = new Date()
+    await checkCode.save()
+    return res.status(201).json(checkCode)
 }
 
-const checkOut = async(req, res) => {
-    const {code, name} = req.body
-    if(!name || !code) return res.status(404).json({message: 'params not found  '}) 
-    const checkCode = await visitorsModel.findOne({inviteCode: code}).exec()
-    if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
-    if(checkCode.status === 'invited'){
-        await checkCode.save()
-        return res.status(401).json({message: 'This person has not been checked in'})
-    }
-    else if(checkCode.status === 'checkedout'){
-        return res.status(401).json({message:`This person has already been checked in and out`})    
-    }
-    checkCode.status = 'checkedin'
-    checkCode.name = name
-    checkCode.checkOut = new Date()
+const checkin = async(req, res) => {
 
-    await checkCode.save()
-    return res.status(201).json({message:`This person has already been checked out`})  
+    const form =new Formidable.IncomingForm()
+    const uploadsFolder = path.join(__dirname, '..', 'uploads')
+    form.maxFileSize = 5 * 1024 * 1024
+    form.uploadDir = uploadsFolder
+    form.parse(req, async(err, fields, files)=>{
+        const {code} = fields
+        if(!code) return res.status(404).json({message: 'params not found  '}) 
+        const checkCode = await visitorsModel.findOne({inviteCode: code}).exec()
+        if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
+
+        if(checkCode.status === 'checkedout'){
+            return res.status(401).json({message: 'This person has not been checked out already been checked in and out'})
+        }
+        else if(checkCode.status === 'checkedin'){
+            return res.status(401).json({message:`This person has already been checked in already`})    
+        }
+        
+        const file = files.files
+        const filename =file.originalFilename
+        try{
+            fsPromises.rename(file.filepath, path.join(uploadsFolder, filename))    
+            
+            checkCode.status = 'checkedin'
+            checkCode.image = filename
+
+            await checkCode.save()
+            return res.status(201).json(checkCode)  
+        }catch(err){
+                return res.status(400).json({error:err.message})
+            }
+    }) 
 }
 
 const LoginSec = async(req, res) => {
@@ -51,18 +68,16 @@ const LoginSec = async(req, res) => {
     if(!found) return res.status(404).json({message: "credentials not found"})
     const match = await bcrypt.compare(password, found.password)
     if(match){  
-        req.session.regenerate(function (err) {
-            if (err) console.log(err)
-            req.session.secuser = found._id
-            return req.session.save(function (err) {
-                if (err) return console.log(err)
-                return res.status(201).json({id: found._id})
-              })
-        })
+        const accessToken = jwt.sign(
+            {userr: found._id},
+            process.env.ACCESS_TOKEN_SECRET,
+            {expiresIn: '30m'}
+        ) 
+        return res.status(201).json({id:'', accessToken, role:2002})
     }
     else{
         return res.status(404).json({type:"wrongpass"})
     }
 }
 
-module.exports = {LoginSec, getSecurity, checkIn, checkOut}
+module.exports = {LoginSec, getSecurity, checkin, checkout}

@@ -1,13 +1,14 @@
 const verifySession = (req, res, next) => {
- if(!req.session.user) return res.status(403).json({message:'403'})
- next()
+    console.log('here')
+    if(parseInt(req.headers['role']) !== 2003) return res.status(403).json({message:'403'})
+    next()
 }
 const verifySecSession = (req, res, next) => {
- if(!req.session.secuser) return res.status(403).json({message:'403'})
- next()
+    if(parseInt(req.headers['role']) !== 2002) return res.status(403).json({message:'403'})
+    next()
 }
 const verifyRepSession = (req, res, next) => {
- if(!req.session.repid) return res.status(403).json({message:'403'})
+ if(parseInt(req.headers['role']) !== 2001) return res.status(403).json({message:'403'})
  next()
 } 
 

@@ -1,4 +1,4 @@
-
+const fetch = require('node-fetch')
 const sendSMS = async(num, message) => {
     const url = `https://app.multitexter.com/v2/app/sms?email=eaogolekwu@gmail.com&password=multitxt1x@&message=${message}&sender_name=IPSS&recipients=${num}&forcednd=1`
     try{

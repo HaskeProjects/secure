@@ -1,9 +1,10 @@
 const Resident = require('../models/residents.model')
 const sendSMS = require('../utils/sms')
 const randomizer = require('randomstring')
+const jwt = require('jsonwebtoken')
 
 const getAllEstateRecidents = async(req, res) => {
-    const esId = req.session.repid
+    const esId = req.user
     const {skip, limit} = req.params
     const resp = await Resident.find({esId: esId}).lean().skip(skip).limit(limit||10)
     const count = await Resident.find({esId: esId}).count()
@@ -29,7 +30,6 @@ const requestRat = async(req, res) => {
     const token = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'})
     const mes = `Your Resident Access Token is ${token}. Do not disclose this to anyone.`
     const message = await sendSMS(number, mes)
-    
     if(message){
         found.crat = token
         await found.save()
@@ -44,9 +44,15 @@ const verifyRat = async(req, res) => {
     const found = await Resident.findOne({number: number}).lean()
     if (!found) return res.status(404).json({message: 'Not found'})
     if(!found.crat || found.crat !== code.toUpperCase()) return res.status(401).json({message: 'Incorrect code'})
-    req.session.user= found._id
-    req.session.save()
-    return res.status(201).json(found)
+    // req.session.user= found._id
+   
+    const accessToken = jwt.sign(
+        {userr: found._id},
+        process.env.ACCESS_TOKEN_SECRET,
+        {expiresIn: '30m'}
+    )
+    
+    return res.status(201).json({id: '', accessToken, role:2003})
 
 }
 
@@ -58,7 +64,7 @@ const createNewRe = async(req, res) => {
 }
 
 const getSingleRe = async(req, res) =>{
-    const id = req.session.user
+    const id = req.user
     const result = await Resident.findOne({_id: id}).lean()
     return res.status(201).json(result)
 }
