@@ -2,6 +2,7 @@ const express = require('express')
 const App = express()
 const cors = require('cors')
 require('dotenv').config()
+const path = require('path')
 require('./lib/db')()
 App.use(cors({
     origin:'http://localhost:3000',
@@ -9,6 +10,7 @@ App.use(cors({
  }))
 const PORT = process.env.PORT || 330
 App.use(express.urlencoded({ extended: false }))
+App.use('/public',express.static(path.join(__dirname, "public")))
 App.use(express.json())
 
 App.get('/', (req,res)=>{return res.json({message:"Connect Yay"})})
