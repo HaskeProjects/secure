@@ -4,6 +4,7 @@ const Security = require("../models/security.model")
 const randomizer = require('randomstring')
 const bcrypt = require('bcrypt')
 const sendSMS = require("../utils/sms")
+const visitorsModel = require("../models/visitors.model")
 const getAllEs = async(req, res) => {
     const data = await Estates.find().lean()
     return res.json(data)
@@ -56,12 +57,20 @@ const deleteEs = async(req,res) => {
     return res.json(re)
 }
 
+getEstateVisitors = async(req, res) => {
+    const id = req.params?.id
+    if (!id) return res.status(403)
+    const found = await visitorsModel.find({esId: id}).lean().populate({path: "invitedBy"})
+    if (!found) return res.status(404).json({message: "Not found"})
+    return res.json(found)
+}
+
 const getSingleEs = async(req, res) => {
     const id = req.params?.id 
     if (!id) return res.status(403)
-    const found = await Estates.findOne({_id: id}).lean().populate({path: "chairman residentCount totalVisits totalSignin totalExpected vi re"})
+    const found = await Estates.findOne({_id: id}).populate({path: "chairman residentCount totalVisits totalSignin totalExpected re"})
     if (!found) return res.status(404).json({message: "Not found"})
     return res.json(found)
 }
  
-module.exports = {getAllEs, addNewEs, editEs, deleteEs, getSingleEs}
+module.exports = {getAllEs, getEstateVisitors, addNewEs, editEs, deleteEs, getSingleEs}

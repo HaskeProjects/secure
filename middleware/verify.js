@@ -1,5 +1,5 @@
 const verifySession = (req, res, next) => {
-    console.log('here')
+    
     if(parseInt(req.headers['role']) !== 2003) return res.status(403).json({message:'403'})
     next()
 }

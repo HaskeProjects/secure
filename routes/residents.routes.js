@@ -1,4 +1,4 @@
-const { getAllEstateRecidents, createNewRe, EditRe, deleteRe, requestRat, verifyRat, getSingleRe } = require('../controllers/residents.controller')
+const { getAllEstateRecidents, createNewRe, EditRe, deleteRe, requestRat, verifyRat, getSingleRe, getResidentVisitors } = require('../controllers/residents.controller')
 const { verifySession, verifyRepSession } = require('../middleware/verify')
 const verifyJWT = require('../middleware/verifyJWT')
 
@@ -10,6 +10,8 @@ router.route('/')
         
 router.route('/single')
         .get(verifyJWT,verifySession, getSingleRe)
+router.route('/visitor')
+        .get(verifyJWT,verifySession, getResidentVisitors)
 router.route('/:number')
         .get(requestRat)
         .post(verifyRat)

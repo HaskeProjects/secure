@@ -13,8 +13,8 @@ const getSecurity = async(req, res) => {
 }
 
 const checkout = async(req, res) => {
-    const {code} = req.body 
-    const checkCode = await visitorsModel.findOne({inviteCode: code}).exec()
+    const {code} = req.headers
+    const checkCode = await visitorsModel.findOne({inviteCode: code}).populate({path:'invitedBy'})
     if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
     if(checkCode.status === 'invited'){
         return res.status(400).json({message:`This person has not been checked in`})    
@@ -22,6 +22,7 @@ const checkout = async(req, res) => {
     else if(checkCode.status === 'checkedout'){
         return res.status(401).json({message:`This person has already been checked in and out`})    
     }
+    checkCode.status = 'checkedout'
     checkCode.checkOut = new Date()
     await checkCode.save()
     return res.status(201).json(checkCode)
@@ -30,34 +31,36 @@ const checkout = async(req, res) => {
 const checkin = async(req, res) => {
 
     const form =new Formidable.IncomingForm()
-    const uploadsFolder = path.join(__dirname, '..', 'uploads')
+    const uploadsFolder = path.join(__dirname, '..', 'public')
     form.maxFileSize = 5 * 1024 * 1024
     form.uploadDir = uploadsFolder
     form.parse(req, async(err, fields, files)=>{
         const {code} = fields
-        if(!code) return res.status(404).json({message: 'params not found  '}) 
-        const checkCode = await visitorsModel.findOne({inviteCode: code}).exec()
+        if(!code) return res.status(404).json({message: 'params not found '}) 
+        const checkCode = await visitorsModel.findOne({inviteCode: code}).populate({path:'invitedBy'})
         if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
 
         if(checkCode.status === 'checkedout'){
-            return res.status(401).json({message: 'This person has not been checked out already been checked in and out'})
+            return res.status(401).json({message: 'This person has already been checked in and out'})
         }
         else if(checkCode.status === 'checkedin'){
-            return res.status(401).json({message:`This person has already been checked in already`})    
+            return res.status(401).json({message:`This person has already been checked in`})    
         }
         
         const file = files.files
-        const filename =file.originalFilename
+        const filename = file.originalFilename
         try{
             fsPromises.rename(file.filepath, path.join(uploadsFolder, filename))    
             
             checkCode.status = 'checkedin'
+            checkCode.checkIn = new Date()
             checkCode.image = filename
 
             await checkCode.save()
             return res.status(201).json(checkCode)  
         }catch(err){
-                return res.status(400).json({error:err.message})
+            console.log(err)
+                return res.status(500).json({error:err.message})
             }
     }) 
 }

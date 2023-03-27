@@ -46,11 +46,6 @@ esSchema.virtual('totalExpected',{
         match:{status: 'invited'},
         count: true
 })
-esSchema.virtual('vi',{
-        ref:'visitors',
-        foreignField: 'esId',
-        localField: '_id'
-})
 esSchema.virtual('re',{
         ref:'residents',
         foreignField: 'esId',

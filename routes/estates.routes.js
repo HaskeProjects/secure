@@ -1,4 +1,4 @@
-const { getAllEs, addNewEs, editEs, deleteEs, getSingleEs } = require('../controllers/estates.controller')
+const { getAllEs, addNewEs, editEs, deleteEs, getSingleEs, getEstateVisitors } = require('../controllers/estates.controller')
 const router = require('express').Router()
 
 router.route('/')
@@ -6,6 +6,6 @@ router.route('/')
         .post(addNewEs)
         .put(editEs)
         .delete(deleteEs)
-router.route('/:id').get(getSingleEs)
+router.route('/:id').get(getSingleEs).post(getEstateVisitors)
 
 module.exports = router

@@ -2,6 +2,7 @@ const Resident = require('../models/residents.model')
 const sendSMS = require('../utils/sms')
 const randomizer = require('randomstring')
 const jwt = require('jsonwebtoken')
+const visitorsModel = require('../models/visitors.model')
 
 const getAllEstateRecidents = async(req, res) => {
     const esId = req.user
@@ -44,7 +45,6 @@ const verifyRat = async(req, res) => {
     const found = await Resident.findOne({number: number}).lean()
     if (!found) return res.status(404).json({message: 'Not found'})
     if(!found.crat || found.crat !== code.toUpperCase()) return res.status(401).json({message: 'Incorrect code'})
-    // req.session.user= found._id
    
     const accessToken = jwt.sign(
         {userr: found._id},
@@ -54,6 +54,12 @@ const verifyRat = async(req, res) => {
     
     return res.status(201).json({id: '', accessToken, role:2003})
 
+}
+
+const getResidentVisitors = async(req, res) => {
+    const id = req.user
+    const result = await visitorsModel.find({resId: id}).lean()
+    return res.status(201).json(result)
 }
 
 const createNewRe = async(req, res) => {
@@ -78,4 +84,4 @@ const deleteRe = async(req,res) => {
     return res.status(201).json(resp)
 }
 
-module.exports = {getAllEstateRecidents, verifyRat, createNewRe, deleteRe, requestRat, getSingleRe, EditRe}
+module.exports = {getAllEstateRecidents, getResidentVisitors, verifyRat, createNewRe, deleteRe, requestRat, getSingleRe, EditRe}

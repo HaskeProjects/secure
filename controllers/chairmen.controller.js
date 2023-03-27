@@ -1,25 +1,19 @@
 const Chair = require('../models/chairmen.model')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const {body} = require('express-validator')
 
 const getAllChair = (req, res) => {
     return res.status(201).json({message: 'authorized'})
 }
 
-// const createNewChair = async(req, res) => {
-//     const {name, esId, number} = req.body
-//     const estate = new Chair({name, esId, number})
-//     const data = await estate.save()
-//     return res.json(data)
-// }
 
 const ChairmanLogin = async(req, res) => {
 
     const {user, password} = req.body
     if(![user, password].every(Boolean)) return res.status(404).json({type:"incompleteinfo", message: 'user login credentials required'})
-    const regex = /^(\w+)[@](\w+)[.](\w+)$/
     const numregex = /^[0-9]{9,10}$/
-    const tester = regex.test(user) ? {email: user} : numregex.test(parseInt(user)) ? {number: user} : {number: 000}
+    const tester = body(user).isEmail() ? {email: user} : numregex.test(parseInt(user)) ? {number: user} : {number: 000}
     const found = await Chair.findOne(tester).exec()
     
     if(!found) return res.status(404).json({message: "not found"})
