@@ -31,7 +31,7 @@ const addNewEs = async(req, res) => {
     await sec.save()
     const mes = `Hello, as representative of "${name}". Your password for IPSS is ${password}. Please keep it safe.`
     sendSMS(number, mes)
-    const mes2 = `Hello, Mr/Mrs ${chfname}. The security details for the estate you're representing is user: ${user}, password: ${secpassword}`
+    const mes2 = `Hello, Dear ${chfname}, The passcodes for the security personnel at your gate are: \n passcode 1: ${user} \n passcode 2: ${secpassword}`
     sendSMS(number, mes2)
     return res.json({password, secpassword, user, number})
 }
