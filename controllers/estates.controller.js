@@ -35,6 +35,7 @@ const addNewEs = async(req, res) => {
     sendSMS(number, mes2)
     return res.json({password, secpassword, user, number})
 }
+// moment(startdate, "DD-MM-YYYY").add(5, 'days') 
 
 const editEs = async(req, res) => {
     const esId = req.body.esId                                                                                                                                  

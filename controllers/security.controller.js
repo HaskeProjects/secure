@@ -8,8 +8,10 @@ const jwt = require('jsonwebtoken')
 
 const getSecurity = async(req, res) => {
     const secId = req.user
-    const sec = await securityModel.findOne({_id: secId }).lean().populate({path: 'expectedVisitors expectedToCheckout estate'})
-    return res.json(sec)
+    const sec = await securityModel.findOne({_id: secId }).lean().populate({path:'estate'})
+    const expectedToCheckout =await visitorsModel.find({esId: sec.esId, status: 'checkedin'}).lean().populate({path:'invitedBy'})
+    const checkOuts =await visitorsModel.find({esId: sec.esId, status: 'checkedout'}).lean().populate({path:'invitedBy'})
+    return res.json({sec, checkOuts, expectedToCheckout})
 }
 
 const checkout = async(req, res) => {

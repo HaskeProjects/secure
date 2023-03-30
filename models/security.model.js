@@ -10,19 +10,6 @@ const seSchema = new mongoose.Schema({
         toJSON:{virtuals:true},
         toObject:{virtuals:true}
 })
-
-seSchema.virtual('expectedVisitors', {
-        ref:'visitors',
-        foreignField: 'esId',
-        localField: 'esId',
-        match: {status: "invited"}
-})
-seSchema.virtual('expectedToCheckout', {
-        ref:'visitors',
-        foreignField: 'esId',
-        localField: 'esId',
-        match: {status: "checkedin"}  
-})
 seSchema.virtual('estate', {
         ref:'estates',
         foreignField: '_id',
