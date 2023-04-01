@@ -9,7 +9,7 @@ App.use(cors({
     optionSuccessStatus:201
  }))
 const PORT = process.env.PORT || 330
-App.use(express.urlencoded({ extended: false }))
+App.use(express.urlencoded({ extended: true }))
 App.use('/public',express.static(path.join(__dirname, "public")))
 App.use(express.json())
 

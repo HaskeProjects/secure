@@ -2,6 +2,8 @@ const Chair = require('../models/chairmen.model')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {body} = require('express-validator')
+const estatesModel = require('../models/estates.model')
+const testval = require('../utils/testval')
 
 const getAllChair = (req, res) => {
     return res.status(201).json({message: 'authorized'})
@@ -9,16 +11,19 @@ const getAllChair = (req, res) => {
 
 
 const ChairmanLogin = async(req, res) => {
-
+    
     const {user, password} = req.body
     if(![user, password].every(Boolean)) return res.status(404).json({type:"incompleteinfo", message: 'user login credentials required'})
     const numregex = /^[0-9]{9,10}$/
-    const tester = numregex.test(parseInt(user)) ? {number: user} : body(user).isEmail() ? {email: user} :  {number: 000}
+    const tester = numregex.test(parseInt(user)) ? {number: parseInt(user)} :body(user).isEmail() ? {email: user} :  {number: 000}
     const found = await Chair.findOne(tester).exec()
     
     if(!found) return res.status(404).json({message: "not found"})
-
-    const match = await bcrypt.compare(password, found.password)
+    const est = await estatesModel.findOne({_id: found.esId})
+    const test = testval(est.end)
+    if(!test) return res.status(403).json({message:'Estate Inactive'})
+    const chpassword = password.toUpperCase()
+    const match = await bcrypt.compare(chpassword, found.password)
     if(match){  
         const accessToken = jwt.sign(
             {userr: found.esId},

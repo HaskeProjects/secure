@@ -68,10 +68,12 @@ const checkin = async(req, res) => {
 }
 
 const LoginSec = async(req, res) => {
-    const {user, password} = req.body 
-    const found = await securityModel.findOne({user}).exec()
+    const {user, password} = req.body
+    const chuser = user.toLowerCase()
+    const found = await securityModel.findOne({user:chuser}).exec()
     if(!found) return res.status(404).json({message: "credentials not found"})
-    const match = await bcrypt.compare(password, found.password)
+    const chpassword = password.toUpperCase()
+    const match = await bcrypt.compare(chpassword, found.password)
     if(match){  
         const accessToken = jwt.sign(
             {userr: found._id},

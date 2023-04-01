@@ -4,7 +4,9 @@ const Residents =  require('./residents.model')
 const Visitors = require('./visitors.model')
 const esSchema = new mongoose.Schema({
         name: {type:String},
-        location: {type:String}
+        location: {type:String},
+        end: {type:String},
+        start: {type:String}
 },{
         timestamps:true,
         toJSON:{virtuals:true},

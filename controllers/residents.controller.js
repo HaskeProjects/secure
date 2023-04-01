@@ -3,6 +3,8 @@ const sendSMS = require('../utils/sms')
 const randomizer = require('randomstring')
 const jwt = require('jsonwebtoken')
 const visitorsModel = require('../models/visitors.model')
+const estatesModel = require('../models/estates.model')
+const testval = require('../utils/testval')
 
 const getAllEstateRecidents = async(req, res) => {
     const esId = req.user
@@ -28,6 +30,9 @@ const requestRat = async(req, res) => {
     const {number} = req.params
     const found = await Resident.findOne({ number: number})
     if (!found) return res.status(404).json({message:'not found'})
+    const est = await estatesModel.findOne({_id: found.esId})
+    const test = testval(est.end)
+    if(!test) return res.status(403).json({message:'Estate Inactive'})
     const token = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'})
     const mes = `Your Resident Access Token is ${token}. Do not disclose this to anyone.`
     const message = await sendSMS(number, mes)
