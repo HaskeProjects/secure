@@ -16,9 +16,9 @@ const getAllEs = async(req, res) => {
 }
 
 const addNewEs = async(req, res) => {
-    const {name, location, chfname, chlname, number, email, endDate} = req.body
+    const {name, location, chfname, chlname, number, email } = req.body
      const start = moment(new Date(), "DD-MM-YYYY").format("DD-MM-YYYY")
-    const end = endDate === -1 ? moment(new Date(), "DD-MM-YYYY").subtract(1,'days').format("DD-MM-YYYY") : moment(new Date(), "DD-MM-YYYY").add(endDate,'days').format("DD-MM-YYYY")
+    const end = moment(new Date(), "DD-MM-YYYY").add(1,'days').format("DD-MM-YYYY")
     const cn =await Chair.findOne({number: number})
     const ce =await Chair.findOne({email: email})
     if(![name, location, chfname, chlname, number, email].every(Boolean)) return res.status(404).json({message: 'Incomplete credentials'})
@@ -27,7 +27,7 @@ const addNewEs = async(req, res) => {
     const data = await estate.save()
     const password = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
     const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
-    const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+generate({length:6, charset: 'hex',capitalization: 'lowercase'})
+    const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+randomizer.generate({length:6, charset: 'hex',capitalization: 'lowercase'})
     const user = `user@${userid}.ipss`
     const hashed = await bcrypt.hash(password, 10)
     const sechashed = await bcrypt.hash(secpassword, 10)
@@ -87,8 +87,9 @@ const renewSubscription = async(req, res) => {
     const {endDate} = req.body
     const found = await Estates.findOne({_id: id})
     if(!found) return res.status(404).json({message: 'Not found'})
-    console.log(moment(found.end, "DD-MM-YYYY").add(parseInt(endDate), 'days').format("DD-MM-YYYY"), endDate)
-    found.end = moment(found.end, "DD-MM-YYYY").add(parseInt(endDate), 'days').format("DD-MM-YYYY")
+    const today = moment().format("DD-MM-YYYY")
+    const daty = moment(today, "DD-MM-YYYY").isAfter(moment(found.end, "DD-MM-YYYY"))
+    found.end = endDate === -1 ? moment(found.end, "DD-MM-YYYY").subtract(100, 'days').format("DD-MM-YYYY") : daty ? moment().add(parseInt(endDate), 'days').format("DD-MM-YYYY") : moment(found.end, "DD-MM-YYYY").add(parseInt(endDate), 'days').format("DD-MM-YYYY")
     await found.save()
     return res.status(201).json({message:'successful'})
 
