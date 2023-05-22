@@ -1,9 +1,11 @@
-const Chair = require('../models/chairmen.model')
+    const Chair = require('../models/chairmen.model')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {body} = require('express-validator')
 const estatesModel = require('../models/estates.model')
 const testval = require('../utils/testval')
+const randomizer = require('randomstring')
+const sendSMS = require("../utils/sms")
 
 const getAllChair = (req, res) => {
     return res.status(201).json({message: 'authorized'})
@@ -39,13 +41,20 @@ const ChairmanLogin = async(req, res) => {
 }
 
 const changeChair = async(req, res) => {
-    const {newChairName, newChairNumber, chId} = req.body 
+    const {newChairName, newChairNumber, resetPass, chId} = req.body 
     if (!chId) return res.status(403)
     const found = await Chair.findOne({_id: chId}).exec()
-    found.name = newChairName
-    found.number = newChairNumber
+    if(newChairName) found.name = newChairName
+    if(newChairNumber) found.number = newChairNumber
+    if(resetPass) {
+        const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
+        const mes = `From ResidentProtect: \n Dear Chairman/Estate Representative, your new login into your IPSS Estate account is ${secpassword}. Where email or phone number is required, please input accordingly.`
+        const sechashed = await bcrypt.hash(secpassword, 10)
+        found.password = sechashed
+        sendSMS(found.number,mes)
+    }
     const resp = await found.save()
-    return res.json(resp)
+    return res.status(201).json(resp)
 }
 
 module.exports = {getAllChair, ChairmanLogin, changeChair}
