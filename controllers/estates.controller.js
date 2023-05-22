@@ -16,9 +16,9 @@ const getAllEs = async(req, res) => {
 }
 
 const addNewEs = async(req, res) => {
-    const {name, location, chfname, chlname, number, email } = req.body
-     const start = moment(new Date(), "DD-MM-YYYY").format("DD-MM-YYYY")
-    const end = moment(new Date(), "DD-MM-YYYY").add(1,'days').format("DD-MM-YYYY")
+    const {name, location, chfname, chlname, number, email, endDate} = req.body
+     const start = moment(new Date(), "DD-MM-YYYY HH:mm:ss").format("DD-MM-YYYY HH:mm:ss")
+    const end = moment(new Date(), "DD-MM-YYYY HH:mm:ss").add(5,'minutes').format("DD-MM-YYYY HH:mm:ss")
     const cn =await Chair.findOne({number: number})
     const ce =await Chair.findOne({email: email})
     if(![name, location, chfname, chlname, number, email].every(Boolean)) return res.status(404).json({message: 'Incomplete credentials'})
@@ -27,18 +27,27 @@ const addNewEs = async(req, res) => {
     const data = await estate.save()
     const password = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
     const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
-    const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+randomizer.generate({length:6, charset: 'hex',capitalization: 'lowercase'})
-    const user = `user@${userid}.ipss`
+    const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+randomizer.generate({length:3, charset: 'hex',capitalization: 'lowercase'})
+    const user = `security@${userid}`
     const hashed = await bcrypt.hash(password, 10)
     const sechashed = await bcrypt.hash(secpassword, 10)
     const chair = new Chair({firstname: chfname, lastname: chlname, esId:data._id, number, password: hashed, email})
     const sec = new Security({name: `${name} security`, user, esId:data._id, password: sechashed})
     await chair.save()
     await sec.save()
-    const mes = `Dear Chairman/Estate Representative of ${name}, your login password into your IPSS Estate account is ${password}. Where email or phone number is required, please input accordingly. \n IPSS: Engineered for Premium Estate Security & Access Control.`
+      
+   
+    const mes = `
+    From ResidentProtect: ${name.toUpperCase()}\n
+    Chairman Email: ${email}\n
+    Chairman Phone: ${number}\n
+    Chairman Password: ${password}\n\n
+    
+    Guard Access Code 1: ${user}\n
+    Guard Access Code 2: ${secpassword}\n
+    https://www.residentprotect.ng
+    `
     sendSMS(number, mes)
-    const mes2 = `Hello, Dear ${chfname}, The passcodes for the security personnel at your gate are: \n passcode 1: ${user} \n passcode 2: ${secpassword}`
-    sendSMS(number, mes2)
     return res.json({password, secpassword, user, number})
 }
 
@@ -87,9 +96,9 @@ const renewSubscription = async(req, res) => {
     const {endDate} = req.body
     const found = await Estates.findOne({_id: id})
     if(!found) return res.status(404).json({message: 'Not found'})
-    const today = moment().format("DD-MM-YYYY")
-    const daty = moment(today, "DD-MM-YYYY").isAfter(moment(found.end, "DD-MM-YYYY"))
-    found.end = endDate === -1 ? moment(found.end, "DD-MM-YYYY").subtract(100, 'days').format("DD-MM-YYYY") : daty ? moment().add(parseInt(endDate), 'days').format("DD-MM-YYYY") : moment(found.end, "DD-MM-YYYY").add(parseInt(endDate), 'days').format("DD-MM-YYYY")
+    const today = moment().format("DD-MM-YYYY HH:mm:ss")
+    const daty = today > found.end
+    found.end =  daty ? moment().add(parseInt(endDate), 'minutes').format("DD-MM-YYYY HH:mm:ss") : moment(found.end, "DD-MM-YYYY HH:mm:ss").add(parseInt(endDate), 'minutes').format("DD-MM-YYYY HH:mm:ss")
     await found.save()
     return res.status(201).json({message:'successful'})
 
