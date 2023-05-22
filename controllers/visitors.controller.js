@@ -1,5 +1,6 @@
 const Vi = require('../models/visitors.model')
 const Re = require('../models/residents.model')
+const Es = require('../models/estates.model')
 const randomizer = require('randomstring')
 const sendSMS = require('../utils/sms')
 
@@ -31,20 +32,32 @@ const createNewVisitor = async(req, res) => {
     if(![number, name, pov, address].every(Boolean)) return res.status(404).json({message: 'Please complete the fields'})
     const isUser = await Re.findOne({_id: resId}).exec()
     if(!isUser || isUser === null) res.status(403).json({message: 'Unauthorized'})
+    const Estate = await Es.findOne({_id: isUser.esId})
     const found = await Vi.findOne({number: number, status: 'invited', resId})
-    const mes1 = `Hello, your invite code to visit Mr/Mrs ${isUser.lastname} is ${inviteCode}.`
-    const mes2 = `[invite resent] Hello, your invite code to visit Mr/Mrs is ${found ? found.inviteCode: inviteCode}`
+    const mes1 = `
+        ${Estate.name.toUpperCase()}
+        Your Passcode: ${inviteCode}
+        Please present your passcode at the gate.\n
+        https://www.residentprotect.ng
+    `
+    
+  
+    const mes2 = `
+        ${Estate.name.toUpperCase()}
+        Your Passcode: ${inviteCode}
+        Please present your passcode at the gate. (Resent)\n
+        https://www.residentprotect.ng
+    `
     
     if(!found){
         const gen = new Vi({number, name, pov, address, esId: isUser.esId, resId, inviteCode })
         await gen.save()
         const resp = await sendSMS(number, mes1)
         if(resp.status !== 1) return res.status(400).json({resp})
-        return res.json({message: "invite sent"})
+        return res.status(201).json({message: "invite sent"})
     }
     const resp = await sendSMS(number, mes2)
-    return res.json({message: "invite sent", resp})
-
+    return res.status(201).json({message: "invite sent", resp})
 }
 
 module.exports = {getAllVisitors, createNewVisitor, getSingleVisitor, getAllExpectedVisitors}
