@@ -1,10 +1,12 @@
 const securityModel = require("../models/security.model")
 const bcrypt = require('bcrypt')
 const visitorsModel = require("../models/visitors.model")
+const estatesModel = require("../models/estates.model")
 const Formidable = require('formidable')
 const fsPromises = require('fs').promises
 const path = require('path')
 const jwt = require('jsonwebtoken')
+const testval = require('../utils/testval')
 
 const getSecurity = async(req, res) => {
     const secId = req.user
@@ -72,9 +74,14 @@ const LoginSec = async(req, res) => {
     const chuser = user.toLowerCase()
     const found = await securityModel.findOne({user:chuser}).exec()
     if(!found) return res.status(404).json({message: "credentials not found"})
+    const est = await estatesModel.findOne({_id: found.esId})
+    const test = testval(est.end)
+    if(!test) return res.status(403).json({message:'Estate Inactive'})
+        
     const chpassword = password.toUpperCase()
     const match = await bcrypt.compare(chpassword, found.password)
     if(match){  
+        
         const accessToken = jwt.sign(
             {userr: found._id},
             process.env.ACCESS_TOKEN_SECRET,
