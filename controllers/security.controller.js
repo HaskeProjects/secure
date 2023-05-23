@@ -39,7 +39,7 @@ const checkin = async(req, res) => {
     form.maxFileSize = 5 * 1024 * 1024
     form.uploadDir = uploadsFolder
     form.parse(req, async(err, fields, files)=>{
-        const {code} = fields
+        const {code, name, pov, address} = fields
         if(!code) return res.status(404).json({message: 'params not found '}) 
         const checkCode = await visitorsModel.findOne({inviteCode: code}).populate({path:'invitedBy'})
         if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
@@ -59,6 +59,9 @@ const checkin = async(req, res) => {
             checkCode.status = 'checkedin'
             checkCode.checkIn = new Date()
             checkCode.image = filename
+            checkCode.name = name
+            checkCode.address = address
+            checkCode.pov = pov
 
             await checkCode.save()
             return res.status(201).json(checkCode)  
