@@ -28,8 +28,8 @@ const getAllExpectedVisitors = async(req, res) => {
 const createNewVisitor = async(req, res) => {
     const resId = req.user
     const inviteCode = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'}) 
-    const {number, name, pov, address } = req.body
-    if(![number, name, pov, address].every(Boolean)) return res.status(404).json({message: 'Please complete the fields'})
+    const { number } = req.body
+    if(![number].every(Boolean)) return res.status(404).json({message: 'Please complete the fields'})
     const isUser = await Re.findOne({_id: resId}).exec()
     if(!isUser || isUser === null) res.status(403).json({message: 'Unauthorized'})
     const Estate = await Es.findOne({_id: isUser.esId})
@@ -50,7 +50,7 @@ const createNewVisitor = async(req, res) => {
     `
     
     if(!found){
-        const gen = new Vi({number, name, pov, address, esId: isUser.esId, resId, inviteCode })
+        const gen = new Vi({number, esId: isUser.esId, resId, inviteCode })
         await gen.save()
         const resp = await sendSMS(number, mes1)
         if(resp.status !== 1) return res.status(400).json({resp})
