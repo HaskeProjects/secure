@@ -39,7 +39,7 @@ const requestRat = async(req, res) => {
     if(message){
         found.crat = token
         await found.save()
-        return res.status(201).json({message: 'success'})
+        return res.status(201).json(message)
     }
     return res.status(400).json({message: 'something went wrong'})
 }
