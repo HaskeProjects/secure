@@ -5,7 +5,7 @@ require('dotenv').config()
 const path = require('path')
 require('./lib/db')()
 App.use(cors({
-    origin:['https://residentprotect.ng','https://www.residentprotect.ng','https://localhost:3000'],
+    origin:['https://residentprotect.ng','https://www.residentprotect.ng','http://localhost:3000'],
     optionSuccessStatus:201
  }))
 const PORT = process.env.PORT || 330
