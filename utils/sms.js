@@ -6,6 +6,7 @@ const sendSMS = async(num, message) => {
         const res = await tr.json()
         return res
     }catch(e){
+        return res.status(403).json({message:e})
         console.log(e)
     }
     
