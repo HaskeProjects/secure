@@ -34,20 +34,11 @@ const createNewVisitor = async(req, res) => {
     if(!isUser || isUser === null) res.status(403).json({message: 'Unauthorized'})
     const Estate = await Es.findOne({_id: isUser.esId})
     const found = await Vi.findOne({number: number, status: 'invited', resId})
-    const mes1 = `
-        ${Estate.name.toUpperCase()}
-        Your Passcode: ${inviteCode}
-        Please present your passcode at the gate.\n
-        https://www.residentprotect.ng
-    `
-    
+    const mes1 = `FROM ${Estate.name.toUpperCase()}. This is your PASSCODE: ${inviteCode}. Please present it at the estate gate for validation. https://www.residentprotect.ng
+`
   
-    const mes2 = `
-        ${Estate.name.toUpperCase()}
-        Your Passcode: ${inviteCode}
-        Please present your passcode at the gate. (Resent)\n
-        https://www.residentprotect.ng
-    `
+    const mes2 = `FROM ${Estate.name.toUpperCase()}. This is your PASSCODE: ${inviteCode}. Please present it at the estate gate for validation. https://www.residentprotect.ng
+`
     
     if(!found){
         const gen = new Vi({number, esId: isUser.esId, resId, inviteCode })
