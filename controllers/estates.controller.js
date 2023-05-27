@@ -39,10 +39,8 @@ const addNewEs = async(req, res) => {
    
     const mes = `
     From ResidentProtect: ${name.toUpperCase()}\n
-    Chairman Email: ${email}\n
     Chairman Phone: ${number}\n
-    Chairman Password: ${password}\n\n
-    
+    Chairman Password: ${password}\n
     Guard Access Code 1: ${user}\n
     Guard Access Code 2: ${secpassword}\n
     https://www.residentprotect.ng
