@@ -1,7 +1,10 @@
-const moment = require('moment')
+const moment = require('moment');
+
 const testval = (end) => {
-    const today = moment().format('DD-MM-YYYY HH:mm:ss')
-    const diff2 = end > today
-    return diff2
-}
-module.exports = testval
+    const today = moment();
+    const endTime = moment(end, 'DD-MM-YYYY HH:mm:ss');
+    const diff2 = endTime.isAfter(today);
+    return diff2;
+};
+
+module.exports = testval;
