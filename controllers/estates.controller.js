@@ -37,14 +37,8 @@ const addNewEs = async(req, res) => {
     await sec.save()
       
    
-    const mes = `
-    From ResidentProtect: ${name.toUpperCase()}\n
-    Chairman Phone: ${number}\n
-    Chairman Password: ${password}\n
-    Guard Access Code 1: ${user}\n
-    Guard Access Code 2: ${secpassword}\n
-    https://www.residentprotect.ng
-    `
+    const mes = `Chairman Phone: ${number}\nChairman Pass: ${password}\nGuard 1: ${user}\nGuard 2: ${secpassword}\nhttps://www.residentprotect.ng`
+    
     sendSMS(number, mes)
     return res.json({password, secpassword, user, number})
 }
