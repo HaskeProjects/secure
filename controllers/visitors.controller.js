@@ -36,7 +36,7 @@ const createNewVisitor = async(req, res) => {
     const found = await Vi.findOne({number: number, status: 'invited', resId})
     const mes1 = `FROM ${Estate.name.toUpperCase()}. This is your PASS: ${inviteCode}. Please present it at the estate gate for validation. https://www.residentprotect.ng`
   
-    const mes2 = `FROM ${Estate.name.toUpperCase()}. This is your PASS: ${inviteCode}. Please present it at the estate gate for validation. https://www.residentprotect.ng (re)`
+    const mes2 = `FROM ${Estate.name.toUpperCase()}. This is your PASS: ${found?.inviteCode}. Please present it at the estate gate for validation. https://www.residentprotect.ng`
     
     if(!found){
         const gen = new Vi({number, esId: isUser.esId, resId, inviteCode })
@@ -45,7 +45,10 @@ const createNewVisitor = async(req, res) => {
         if(resp.status !== 1) return res.status(400).json({resp})
         return res.status(201).json({message: "invite sent"})
     }
-    const resp = await sendSMS(number, mes2)
+    const resp = await sendSMS(number, mes1)
+    if(resp.status !== 1) return res.status(400).json({resp})
+    found.createdAt = new Date()
+    await found.save()
     return res.status(201).json({message: "invite sent", resp})
 }
 
