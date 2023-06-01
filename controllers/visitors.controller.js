@@ -42,11 +42,9 @@ const createNewVisitor = async(req, res) => {
         const gen = new Vi({number, esId: isUser.esId, resId, inviteCode })
         await gen.save()
         const resp = await sendSMS(number, mes1)
-        if(resp.status !== 1) return res.status(400).json({resp})
         return res.status(201).json({message: "invite sent"})
     }
     const resp = await sendSMS(number, mes1)
-    if(resp.status !== 1) return res.status(400).json({resp})
     found.createdAt = new Date()
     await found.save()
     return res.status(201).json({message: "invite sent", resp})
