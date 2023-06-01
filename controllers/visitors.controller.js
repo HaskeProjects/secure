@@ -45,7 +45,7 @@ const createNewVisitor = async(req, res) => {
         return res.status(201).json({message: "invite sent"})
     }
     const resp = await sendSMS(number, mes2)
-    found.createdAt = new Date()
+    found.updatedAt = new Date()
     await found.save()
     return res.status(201).json({message: "invite sent", resp})
 }
