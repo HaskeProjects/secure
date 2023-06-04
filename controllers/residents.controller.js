@@ -34,14 +34,9 @@ const requestRat = async(req, res) => {
     const test = testval(est.end)
     if(!test) return res.status(403).json({message:'Estate Inactive'})
     const token = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'})
-    const mes = `From ResidentProtect: Your Resident Pass: ${token}. Do not disclose this to anyone. \n ResidentProtect is an engineered technology built to protect residents of gated estate.`
     
-    const message = await sendSMS(number, mes)
-    if(message){
-        found.crat = token
-        await found.save()
-        return res.status(201).json(message)
-    }
+    return res.status(201).json(message)
+    
     return res.status(400).json({message: 'something went wrong'})
 }
 
@@ -70,7 +65,10 @@ const getResidentVisitors = async(req, res) => {
 
 const createNewRe = async(req, res) => {
     const {firstname, lastname, esId, apartment, number} = req.body
-    const resident = new Resident({firstname, lastname, esId, apartment, number})
+    const token = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'})
+    const resident = new Resident({firstname, lastname, esId, apartment, number, crat:token})
+    const mes = `From ResidentProtect: Your Resident Pass: ${token}. Do not disclose this to anyone. \n ResidentProtect is an engineered technology built to protect residents of gated estate.`
+    await sendSMS(number, mes)
     const resp = await resident.save()
     return res.status(201).json(resp)
 }
