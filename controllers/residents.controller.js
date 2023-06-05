@@ -27,17 +27,7 @@ const EditRe = async(req,res) => {
 }
 
 const requestRat = async(req, res) => {
-    const {number} = req.params
-    const found = await Resident.findOne({ number: number})
-    if (!found) return res.status(404).json({message:'not found'})
-    const est = await estatesModel.findOne({_id: found.esId})
-    const test = testval(est.end)
-    if(!test) return res.status(403).json({message:'Estate Inactive'})
-    const token = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'})
     
-    return res.status(201).json(message)
-    
-    return res.status(400).json({message: 'something went wrong'})
 }
 
 const verifyRat = async(req, res) => {
