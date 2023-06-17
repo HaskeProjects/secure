@@ -17,7 +17,7 @@ const ChairmanLogin = async(req, res) => {
     const {user, password} = req.body
     if(![user, password].every(Boolean)) return res.status(404).json({type:"incompleteinfo", message: 'user login credentials required'})
     const numregex = /^[0-9]{9,10}$/
-    const tester = numregex.test(parseInt(user)) ? {number: parseInt(user)} :body(user).isEmail() ? {email: user} :  {number: 000}
+    const tester = numregex.test(parseInt(user)) ? {number: parseInt(user)} :body(user).isEmail() ? {email: user} :  {number: 0}
     const found = await Chair.findOne(tester).exec()
     
     if(!found) return res.status(404).json({message: "not found"})
@@ -41,10 +41,11 @@ const ChairmanLogin = async(req, res) => {
 }
 
 const changeChair = async(req, res) => {
-    const {newChairName, newChairNumber, resetPass, chId} = req.body 
+    const {newChairFirstname, newChairLastname, newChairNumber, resetPass, chId} = req.body 
     if (!chId) return res.status(403)
     const found = await Chair.findOne({_id: chId}).exec()
-    if(newChairName) found.name = newChairName
+    if(newChairFirstname) found.firstname = newChairFirstname
+    if(newChairLastname) found.lastname = newChairLastname
     if(newChairNumber) found.number = newChairNumber
     if(resetPass) {
         const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
