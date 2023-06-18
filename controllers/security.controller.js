@@ -4,9 +4,12 @@ const visitorsModel = require("../models/visitors.model")
 const estatesModel = require("../models/estates.model")
 const Formidable = require('formidable')
 const fsPromises = require('fs').promises
+const randomizer = require('randomstring')
 const path = require('path')
 const jwt = require('jsonwebtoken')
 const testval = require('../utils/testval')
+const sendSMS = require("../utils/sms")
+const chairmenModel = require("../models/chairmen.model")
 
 const getSecurity = async(req, res) => {
     const secId = req.user
@@ -82,7 +85,8 @@ const LoginSec = async(req, res) => {
     if(!test) return res.status(403).json({message:'Estate Inactive'})
         
     const chpassword = password.toUpperCase()
-    const match = await bcrypt.compare(chpassword, found.password)
+    console.log(password, user)
+    const match = await bcrypt.compare(password, found.password)
     if(match){  
         
         const accessToken = jwt.sign(
@@ -97,4 +101,22 @@ const LoginSec = async(req, res) => {
     }
 }
 
-module.exports = {LoginSec, getSecurity, checkin, checkout}
+const resetSecurityDetails = async(req, res) => {
+    const {chId} = req.body 
+    if (!chId) return res.status(403).json({message:'Nothing to see here'})
+    const found = await securityModel.findOne({esId: chId}).exec()
+    if (!found) return res.status(403).json({message:'Nothing to see here'})
+    const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
+    const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+randomizer.generate({length:3, charset: 'hex',capitalization: 'lowercase'})
+    const user = `rp@${userid}`
+    const sechashed = await bcrypt.hash(secpassword, 10)
+        const mes = `From ResidentProtect: \n Dear Chairman/Estate Representative, your estate's new guard login is Guard 1: ${user}, Guard 2: ${secpassword}.`
+        found.password = sechashed
+        found.user = user
+        const chairman = await chairmenModel.findOne({esId: found.esId})
+        const meb = await sendSMS(chairman.number, mes)
+        await found.save()
+        return res.status(201).json({message:'sent'})
+}
+
+module.exports = {LoginSec, getSecurity, checkin, checkout, resetSecurityDetails}
