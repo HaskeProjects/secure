@@ -28,7 +28,7 @@ const addNewEs = async(req, res) => {
     const password = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
     const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
     const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+randomizer.generate({length:3, charset: 'hex',capitalization: 'lowercase'})
-    const user = `residentprotect@${userid}`
+    const user = `rp@${userid}`
     const hashed = await bcrypt.hash(password, 10)
     const sechashed = await bcrypt.hash(secpassword, 10)
     const chair = new Chair({firstname: chfname, lastname: chlname, esId:data._id, number, password: hashed, email})
