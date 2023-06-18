@@ -13,8 +13,7 @@ App.use(express.urlencoded({ extended: true }))
 App.use('/public',express.static(path.join(__dirname, "public")))
 App.use(express.json())
 
-App.get('/', (req,res)=>{return res.json({message:"Connect Yay"})})
-
+App.get('/', (req, res)=>{return res.json({message:"Connect Yay"})})
 App.use('/es', require('./routes/estates.routes'))
 App.use('/chair', require('./routes/chairman.routes'))
 App.use('/re', require('./routes/residents.routes'))

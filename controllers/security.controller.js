@@ -9,6 +9,7 @@ const path = require('path')
 const jwt = require('jsonwebtoken')
 const testval = require('../utils/testval')
 const sendSMS = require("../utils/sms")
+const chairmenModel = require("../models/chairmen.model")
 
 const getSecurity = async(req, res) => {
     const secId = req.user
@@ -84,7 +85,8 @@ const LoginSec = async(req, res) => {
     if(!test) return res.status(403).json({message:'Estate Inactive'})
         
     const chpassword = password.toUpperCase()
-    const match = await bcrypt.compare(chpassword, found.password)
+    console.log(password, user)
+    const match = await bcrypt.compare(password, found.password)
     if(match){  
         
         const accessToken = jwt.sign(
@@ -111,8 +113,9 @@ const resetSecurityDetails = async(req, res) => {
         const mes = `From ResidentProtect: \n Dear Chairman/Estate Representative, your estate's new guard login is Guard 1: ${user}, Guard 2: ${secpassword}.`
         found.password = sechashed
         found.user = user
-        sendSMS(found.number, mes)
-        await found.save()  
+        const chairman = await chairmenModel.findOne({esId: found.esId})
+        const meb = await sendSMS(chairman.number, mes)
+        await found.save()
         return res.status(201).json({message:'sent'})
 }
 
