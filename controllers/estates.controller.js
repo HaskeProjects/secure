@@ -16,14 +16,14 @@ const getAllEs = async(req, res) => {
 }
 
 const addNewEs = async(req, res) => {
-    const {name, location, chfname, chlname, number, email, endDate} = req.body
+    const {name, location, chfname, chlname, type, number, email, endDate} = req.body
      const start = moment(new Date(), "DD-MM-YYYY HH:mm:ss").format("DD-MM-YYYY HH:mm:ss")
     const end = moment(new Date(), "DD-MM-YYYY HH:mm:ss").add(5,'minutes').format("DD-MM-YYYY HH:mm:ss")
     const cn =await Chair.findOne({number: number})
     const ce =await Chair.findOne({email: email})
-    if(![name, location, chfname, chlname, number, email].every(Boolean)) return res.status(404).json({message: 'Incomplete credentials'})
+    if(![name, location, chfname, type, chlname, number, email].every(Boolean)) return res.status(404).json({message: 'Incomplete credentials'})
     if(cn|| ce) return res.status(409).json({message:'duplicate number or email'})
-    const estate = new Estates({name, location, start, end})
+    const estate = new Estates({name, location,type, start, end})
     const data = await estate.save()
     const password = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
     const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
@@ -31,7 +31,7 @@ const addNewEs = async(req, res) => {
     const user = `rp@${userid}`
     const hashed = await bcrypt.hash(password, 10)
     const sechashed = await bcrypt.hash(secpassword, 10)
-    const chair = new Chair({firstname: chfname, lastname: chlname, esId:data._id, number, password: hashed, email})
+    const chair = new Chair({firstname: chfname,  lastname: chlname, esId:data._id, number, password: hashed, email})
     const sec = new Security({name: `${name} security`, user, esId:data._id, password: sechashed})
     await chair.save()
     await sec.save()

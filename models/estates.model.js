@@ -5,6 +5,7 @@ const Visitors = require('./visitors.model')
 const esSchema = new mongoose.Schema({
         name: {type:String},
         location: {type:String},
+        type:{type:String},
         end: {type:String},
         start: {type:String}
 },{

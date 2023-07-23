@@ -75,6 +75,46 @@ const checkin = async(req, res) => {
     }) 
 }
 
+const ncheckin = async(req, res) => {
+
+    try{
+        const form =new Formidable.IncomingForm()
+    const uploadsFolder = path.join(__dirname, '..', 'public')
+    form.maxFileSize = 5 * 1024 * 1024
+    form.uploadDir = uploadsFolder
+    form.parse(req, async(err, fields, files)=>{
+        const {name, pov, number, address} = fields
+        const file = files.files
+        const filename = file.originalFilename
+        console.log(filename)
+
+        try{
+            fsPromises.rename(file.filepath, path.join(uploadsFolder, filename)) 
+            const sec = await securityModel.findOne({_id: req.user })
+            const vis = new visitorsModel({
+                name,
+                status: "checkedin",
+                image: filename,
+                address,
+                pov,
+                checkIn:new Date(),
+                number,
+                inviteCode: 'auto',
+                esId: sec.esId
+            })
+            const v = await vis.save()
+            return res.status(201).json(v)  
+        }catch(err){
+            console.log(err)
+            return res.status(500).json({error:err.message})
+            }
+    })
+    }catch(e){
+        console.log(e)
+        return res.status(500).json(e)
+    } 
+}
+
 const LoginSec = async(req, res) => {
     const {user, password} = req.body
     const chuser = user.toLowerCase()
@@ -85,7 +125,6 @@ const LoginSec = async(req, res) => {
     if(!test) return res.status(403).json({message:'Estate Inactive'})
         
     const chpassword = password.toUpperCase()
-    console.log(password, user)
     const match = await bcrypt.compare(password, found.password)
     if(match){  
         
@@ -94,7 +133,7 @@ const LoginSec = async(req, res) => {
             process.env.ACCESS_TOKEN_SECRET,
             {expiresIn: '30m'}
         ) 
-        return res.status(201).json({id:'', accessToken, role:2002})
+        return res.status(201).json({id:est.type, accessToken, role:2002})
     }
     else{
         return res.status(404).json({type:"wrongpass"})
@@ -119,4 +158,4 @@ const resetSecurityDetails = async(req, res) => {
         return res.status(201).json({message:'sent'})
 }
 
-module.exports = {LoginSec, getSecurity, checkin, checkout, resetSecurityDetails}
+module.exports = {LoginSec, getSecurity, checkin, checkout, resetSecurityDetails, ncheckin}
