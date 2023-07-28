@@ -1,4 +1,5 @@
     const Chair = require('../models/chairmen.model')
+    const Vi = require('../models/visitors.model')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {body} = require('express-validator')
@@ -11,9 +12,7 @@ const getAllChair = (req, res) => {
     return res.status(201).json({message: 'authorized'})
 }
 
-
 const ChairmanLogin = async(req, res) => {
-    
     const {user, password} = req.body
     if(![user, password].every(Boolean)) return res.status(404).json({type:"incompleteinfo", message: 'user login credentials required'})
     const numregex = /^[0-9]{9,10}$/
@@ -33,7 +32,7 @@ const ChairmanLogin = async(req, res) => {
             {expiresIn: '30m'}
         )
         
-        return res.status(201).json({id:found.esId, accessToken, role:2001})
+        return res.status(201).json({id:found.esId, accessToken, type:est.type, role:2001})
     }
     else{
         return res.status(404).json({type:"wrongpass"})
@@ -58,4 +57,22 @@ const changeChair = async(req, res) => {
     return res.status(201).json(resp)
 }
 
-module.exports = {getAllChair, ChairmanLogin, changeChair}
+const createOfficeVisitor = async(req, res) => {
+    const esId = req.user
+    const inviteCode = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'}) 
+    const { number } = req.body
+    if(![number].every(Boolean)) return res.status(404).json({message: 'Please complete the fields'})
+    
+    const found = await Vi.findOne({number: number, status: 'invited', esId})
+      
+    if(!found){
+        const gen = new Vi({number, esId: esId, resId:null, inviteCode })
+        await gen.save()
+        return res.status(201).json({message: inviteCode})
+    }
+    found.updatedAt = new Date()
+    await found.save()
+    return res.status(201).json({message: found.inviteCode})
+}
+
+module.exports = { getAllChair,createOfficeVisitor, ChairmanLogin, changeChair }

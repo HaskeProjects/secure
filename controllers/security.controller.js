@@ -43,8 +43,13 @@ const checkin = async(req, res) => {
     form.uploadDir = uploadsFolder
     form.parse(req, async(err, fields, files)=>{
         const {code, name, pov, address} = fields
-        if(!code) return res.status(404).json({message: 'params not found '}) 
-        const checkCode = await visitorsModel.findOne({inviteCode: code}).populate({path:'invitedBy'})
+        if(!code) return res.status(404).json({message: 'params not found'}) 
+        const checkCode = await visitorsModel.findOne({
+            $or: [
+              { inviteCode: code },
+              { number: code }
+            ]
+          }).populate({ path: 'invitedBy' })
         if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
 
         if(checkCode.status === 'checkedout'){
@@ -76,7 +81,6 @@ const checkin = async(req, res) => {
 }
 
 const ncheckin = async(req, res) => {
-
     try{
         const form =new Formidable.IncomingForm()
     const uploadsFolder = path.join(__dirname, '..', 'public')
