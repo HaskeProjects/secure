@@ -60,13 +60,13 @@ const changeChair = async(req, res) => {
 const createOfficeVisitor = async(req, res) => {
     const esId = req.user
     const inviteCode = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'}) 
-    const { number } = req.body
+    const { number, name, pov } = req.body
     if(![number].every(Boolean)) return res.status(404).json({message: 'Please complete the fields'})
     
-    const found = await Vi.findOne({number: number, status: 'invited', esId})
+    const found = await Vi.findOne({number: number, name, pov, status: 'invited', esId})
       
     if(!found){
-        const gen = new Vi({number, esId: esId, resId:null, inviteCode })
+        const gen = new Vi({number, name, pov, esId: esId, resId:null, inviteCode })
         await gen.save()
         return res.status(201).json({message: inviteCode})
     }

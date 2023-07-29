@@ -130,13 +130,12 @@ const LoginSec = async(req, res) => {
         
     const chpassword = password.toUpperCase()
     const match = await bcrypt.compare(password, found.password)
-    if(match){  
-        
+    if(match){
         const accessToken = jwt.sign(
             {userr: found._id},
             process.env.ACCESS_TOKEN_SECRET,
             {expiresIn: '30m'}
-        ) 
+        )
         return res.status(201).json({id:est.type, accessToken, role:2002})
     }
     else{
