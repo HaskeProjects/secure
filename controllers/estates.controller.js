@@ -15,6 +15,7 @@ const getAllEs = async(req, res) => {
     return res.json(data)
 }
 
+
 const addNewEs = async(req, res) => {
     const {name, location, chfname, chlname, type, number, email, endDate} = req.body
      const start = moment(new Date(), "DD-MM-YYYY HH:mm:ss").format("DD-MM-YYYY HH:mm:ss")
