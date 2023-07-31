@@ -12,6 +12,14 @@ const getAllVisitors = async(req, res) => {
     return res.json({resp, count})
 }
 
+const getEnqVis = async(req, res) => {
+    const esId = req.user
+    const resp = await Vi.find({esId: esId}).lean().populate({path:"invitedBy"})
+    console.log(resp, esId)
+    const count = await Vi.find({esId: esId}).lean().count()
+    return res.json({resp, count})
+}
+
 const getSingleVisitor = async(req, res) => {
     const {resId} = req.params
     const resp = await Vi.findOne({inviteCode: resId, status:'invited'}).lean().populate({path:'invitedBy'})
@@ -41,12 +49,12 @@ const createNewVisitor = async(req, res) => {
         const gen = new Vi({number, esId: isUser.esId, resId, inviteCode })
         await gen.save()
         const resp = await sendSMS(number, mes1)
-        return res.status(201).json({message: "invite sent"})
+        return res.status(201).json({message: inviteCode})
     }
     const resp = await sendSMS(number, mes2)
     found.updatedAt = new Date()
     await found.save()
-    return res.status(201).json({message: "invite sent", resp})
+    return res.status(201).json({message: found.inviteCode})
 }
 
-module.exports = {getAllVisitors, createNewVisitor, getSingleVisitor, getAllExpectedVisitors}
+module.exports = {getAllVisitors, createNewVisitor, getEnqVis, getSingleVisitor, getAllExpectedVisitors}

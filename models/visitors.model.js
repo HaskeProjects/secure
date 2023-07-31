@@ -8,7 +8,7 @@ const viSchema = new mongoose.Schema({
         pov:{type:String, default:null},
         checkOut:{type:String, default: "0"},
         checkIn:{type:String, default: "0"},
-        resId: {type: mongoose.Types.ObjectId},
+        resId: {type: mongoose.Types.ObjectId, default:null},
         esId: {type: mongoose.Types.ObjectId},
         image: {type:String, default:'un'} 
 },{

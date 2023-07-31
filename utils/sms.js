@@ -27,8 +27,7 @@ const sendSMS = async(num, message) => {
         const res = await mes.json()
         return res
     }catch(e){
-    console.log(error);
-    return res.status(403).json({message:e})
+    console.log(e)
   }
 }
 
