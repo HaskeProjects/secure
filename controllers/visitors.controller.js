@@ -15,14 +15,19 @@ const getAllVisitors = async(req, res) => {
 const getEnqVis = async(req, res) => {
     const esId = req.user
     const resp = await Vi.find({esId: esId}).lean().populate({path:"invitedBy"})
-    console.log(resp, esId)
     const count = await Vi.find({esId: esId}).lean().count()
     return res.json({resp, count})
 }
 
 const getSingleVisitor = async(req, res) => {
     const {resId} = req.params
-    const resp = await Vi.findOne({inviteCode: resId, status:'invited'}).lean().populate({path:'invitedBy'})
+    const user = req.user
+    const resp = await Vi.findOne({
+        $or: [
+            {inviteCode: resId, esId:user, status:'invited'},
+            {number: resId, esId:user, status:'invited'}
+        ]
+      }).lean().populate({path:'invitedBy'})
     if(!resp) return res.status(404).json({message:'No active invite with this code'})
     return res.status(201).json(resp)
 }

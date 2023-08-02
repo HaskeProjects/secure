@@ -21,7 +21,15 @@ const getSecurity = async(req, res) => {
 
 const checkout = async(req, res) => {
     const {code} = req.headers
-    const checkCode = await visitorsModel.findOne({inviteCode: code}).populate({path:'invitedBy'})
+    const user = req.user
+    const sec = await securityModel.findOne({_id:user})
+    console.log(sec.esId)
+    const checkCode = await visitorsModel.findOne({
+        $or: [
+          { inviteCode: code, esId:sec.esId },
+          { number: code, esId:sec.esId }
+        ]
+      }).populate({path:'invitedBy'})
     if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
     if(checkCode.status === 'invited'){
         return res.status(400).json({message:`This person has not been checked in`})    
@@ -36,6 +44,8 @@ const checkout = async(req, res) => {
 }
 
 const checkin = async(req, res) => {
+    const user = req.user
+    const sec = await securityModel.findOne({_id:user})
 
     const form =new Formidable.IncomingForm()
     const uploadsFolder = path.join(__dirname, '..', 'public')
@@ -46,8 +56,8 @@ const checkin = async(req, res) => {
         if(!code) return res.status(404).json({message: 'params not found'}) 
         const checkCode = await visitorsModel.findOne({
             $or: [
-              { inviteCode: code },
-              { number: code }
+              { inviteCode: code, esId:sec.esId },
+              { number: code, esId:sec.esId }
             ]
           }).populate({ path: 'invitedBy' })
         if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
@@ -81,6 +91,9 @@ const checkin = async(req, res) => {
 }
 
 const ncheckin = async(req, res) => {
+    
+    const user = req.user
+    const sec = await securityModel.findOne({_id:user})
     try{
         const form =new Formidable.IncomingForm()
     const uploadsFolder = path.join(__dirname, '..', 'public')
@@ -90,8 +103,7 @@ const ncheckin = async(req, res) => {
         const {name, pov, number, address} = fields
         const file = files.files
         const filename = file.originalFilename
-        console.log(filename)
-
+       
         try{
             fsPromises.rename(file.filepath, path.join(uploadsFolder, filename)) 
             const sec = await securityModel.findOne({_id: req.user })
