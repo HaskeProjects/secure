@@ -3,6 +3,7 @@ const Re = require('../models/residents.model')
 const Es = require('../models/estates.model')
 const randomizer = require('randomstring')
 const sendSMS = require('../utils/sms')
+const securityModel = require('../models/security.model')
 
 const getAllVisitors = async(req, res) => {
     const esId = req.user
@@ -22,10 +23,11 @@ const getEnqVis = async(req, res) => {
 const getSingleVisitor = async(req, res) => {
     const {resId} = req.params
     const user = req.user
+    const sec = await securityModel.findOne({_id: user }).lean().populate({path:'estate'})
     const resp = await Vi.findOne({
         $or: [
-            {inviteCode: resId, esId:user, status:'invited'},
-            {number: resId, esId:user, status:'invited'}
+            {inviteCode: resId, esId:sec.esId, status:'invited'},
+            {number: resId, esId:sec.esId, status:'invited'}
         ]
       }).lean().populate({path:'invitedBy'})
     if(!resp) return res.status(404).json({message:'No active invite with this code'})
