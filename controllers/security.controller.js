@@ -71,12 +71,13 @@ const checkin = async(req, res) => {
         
         const file = files.files
         const filename = file.originalFilename
+        const newFilename = file.newFilename
         try{
-            fsPromises.rename(file.filepath, path.join(uploadsFolder, filename))    
+            fsPromises.rename(file.filepath, path.join(uploadsFolder, newFilename+filename))    
             
             checkCode.status = 'checkedin'
             checkCode.checkIn = new Date()
-            checkCode.image = filename
+            checkCode.image = newFilename+filename
             checkCode.name = name
             checkCode.address = address
             checkCode.pov = pov
@@ -91,9 +92,6 @@ const checkin = async(req, res) => {
 }
 
 const ncheckin = async(req, res) => {
-    
-    const user = req.user
-    const sec = await securityModel.findOne({_id:user})
     try{
         const form =new Formidable.IncomingForm()
     const uploadsFolder = path.join(__dirname, '..', 'public')
@@ -103,16 +101,17 @@ const ncheckin = async(req, res) => {
         const {name, pov, number, address} = fields
         const file = files.files
         const filename = file.originalFilename
+        const newFilename = file.newFilename
        
         try{
-            fsPromises.rename(file.filepath, path.join(uploadsFolder, filename)) 
+            fsPromises.rename(file.filepath, path.join(uploadsFolder, newFilename+filename)) 
             const sec = await securityModel.findOne({_id: req.user })
             const vis = new visitorsModel({
-                name,
+                name:name,
                 status: "checkedin",
-                image: filename,
-                address,
-                pov,
+                image: newFilename+filename,
+                address:address,
+                pov:pov,
                 checkIn:new Date(),
                 number,
                 inviteCode: 'auto',
