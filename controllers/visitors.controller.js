@@ -21,17 +21,23 @@ const getEnqVis = async(req, res) => {
 }
 
 const getSingleVisitor = async(req, res) => {
-    const {resId} = req.params
+    try{
+        const {resId} = req.params
     const user = req.user
-    const sec = await securityModel.findOne({_id: user }).lean().populate({path:'estate'})
+    const sec = await securityModel.findOne({_id: user })
+    const n2 = !parseInt(resId) ? 1234 : parseInt(resId)
+    
     const resp = await Vi.findOne({
         $or: [
             {inviteCode: resId, esId:sec.esId, status:'invited'},
-            {number: resId, esId:sec.esId, status:'invited'}
+            {number: n2, esId:sec.esId, status:'invited'}
         ]
-      }).lean().populate({path:'invitedBy'})
+      }).populate({path:"invitedBy"})
     if(!resp) return res.status(404).json({message:'No active invite with this code'})
     return res.status(201).json(resp)
+    }catch(e){
+        console.log(e)
+    }
 }
 
 const getAllExpectedVisitors = async(req, res) => {
