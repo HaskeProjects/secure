@@ -23,7 +23,6 @@ const checkout = async(req, res) => {
     const {code} = req.headers
     const user = req.user
     const sec = await securityModel.findOne({_id:user})
-    console.log(sec.esId)
     const checkCode = await visitorsModel.findOne({
         $or: [
           { inviteCode: code, esId:sec.esId },
@@ -85,7 +84,7 @@ const checkin = async(req, res) => {
             await checkCode.save()
             return res.status(201).json(checkCode)  
         }catch(err){
-            console.log(err)
+                console.log(err)
                 return res.status(500).json({error:err.message})
             }
     }) 
@@ -168,6 +167,7 @@ const resetSecurityDetails = async(req, res) => {
         found.user = user
         const chairman = await chairmenModel.findOne({esId: found.esId})
         const meb = await sendSMS(chairman.number, mes)
+        console.log(mes)
         await found.save()
         return res.status(201).json({message:'sent'})
 }
