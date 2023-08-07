@@ -22,11 +22,13 @@ const getSecurity = async(req, res) => {
 const checkout = async(req, res) => {
     const {code} = req.headers
     const user = req.user
+    const n2 = !parseInt(code) ? 1234 : parseInt(code)
+
     const sec = await securityModel.findOne({_id:user})
     const checkCode = await visitorsModel.findOne({
         $or: [
-          { inviteCode: code, esId:sec.esId },
-          { number: code, esId:sec.esId }
+          { inviteCode: code, esId:sec.esId, status:'checkedin' },
+          { number: n2, esId:sec.esId, status:'checkedin' }
         ]
       }).populate({path:'invitedBy'})
     if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
