@@ -52,11 +52,12 @@ const checkin = async(req, res) => {
     form.uploadDir = uploadsFolder
     form.parse(req, async(err, fields, files)=>{
         const {code, name, pov, address} = fields
+        const n2 = !parseInt(code) ? 1234 : parseInt(code)
         if(!code) return res.status(404).json({message: 'params not found'}) 
         const checkCode = await visitorsModel.findOne({
             $or: [
-              { inviteCode: code, esId:sec.esId },
-              { number: code, esId:sec.esId }
+              { inviteCode: code, esId:sec.esId, status:'invited' },
+              { number: n2, esId:sec.esId, status:'invited' }
             ]
           }).populate({ path: 'invitedBy' })
         if(!checkCode) return res.status(404).json({message: 'code doesn\'t exist.'})
