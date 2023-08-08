@@ -58,8 +58,7 @@ const createNewRe = async(req, res) => {
     const token = randomizer.generate({length:4, charset: 'hex',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:1,charset: 'number',capitalization: 'uppercase'})
     const resident = new Resident({firstname, lastname, esId, apartment, number, crat:token})
     const mes = `From ResidentProtect: This is your Resident Pass ${token}. You will need it always to book your visitor into the estate. Please keep it safe and do not disclose it to anyone. www.residentprotect.ng`
-    const th = await sendSMS(number, mes)
-    console.log(th)
+    await sendSMS(number, mes)
     const resp = await resident.save()
     return res.status(201).json({...resp, token})
 }
