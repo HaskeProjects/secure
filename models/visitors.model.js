@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const viSchema = new mongoose.Schema({
         name: {type:String, default:null},
+        staffname: {type:String, default:null},
+        dept: {type:String, default:null},
         number:{type:Number, required:true},
         status:{type:String, default: "invited"},
         inviteCode: {type:String, required: true},
