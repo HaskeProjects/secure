@@ -165,7 +165,7 @@ const resetSecurityDetails = async(req, res) => {
     const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+randomizer.generate({length:3, charset: 'hex',capitalization: 'lowercase'})
     const user = `rp@${userid}`
     const sechashed = await bcrypt.hash(secpassword, 10)
-        const mes = `From ResidentProtect: \n  Dear Estate Chairman/Representative. This is your new guards login details: Guard 1: ${user}, Guard 2: ${secpassword}`
+        const mes = `From ProtectPro: \n  Dear Estate Chairman/Representative. This is your new guards login details: Guard 1: ${user}, Guard 2: ${secpassword}`
         found.password = sechashed
         found.user = user
         const chairman = await chairmenModel.findOne({esId: found.esId})
