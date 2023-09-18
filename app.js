@@ -8,6 +8,7 @@ App.use(cors({
     origin:['https://protectpro.ng','https://www.protectpro.ng','http://localhost:3000'],
     optionSuccessStatus:201
  }))
+ 
 const PORT = process.env.PORT || 330
 App.use(express.urlencoded({ extended: true }))
 App.use('/public',express.static(path.join(__dirname, "public")))
