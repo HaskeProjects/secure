@@ -61,10 +61,10 @@ const createNewVisitor = async(req, res) => {
     if(!found){
         const gen = new Vi({number, esId: isUser.esId, resId, inviteCode })
         await gen.save()
-        Es.type === 'estate' && await sendSMS(number, mes1)
+        Es.type === 'estate'? await sendSMS(number, mes1): console.log('')
         return res.status(201).json({message: inviteCode})
     }
-    Es.type === 'estate' && await sendSMS(number, mes2)
+    Es.type === 'estate' ? await sendSMS(number, mes2): console.log('')
     found.updatedAt = new Date()
     await found.save()
     return res.status(201).json({message: found.inviteCode})
