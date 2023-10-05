@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken')
 const visitorsModel = require('../models/visitors.model')
 const estatesModel = require('../models/estates.model')
 const testval = require('../utils/testval')
+const dependantsModel = require('../models/dependants.model')
+const residentsModel = require('../models/residents.model')
 
 const getAllEstateRecidents = async(req, res) => {
     const esId = req.user
@@ -78,4 +80,96 @@ const deleteRe = async(req,res) => {
     return res.status(201).json(resp)
 }
 
-module.exports = {getAllEstateRecidents, getResidentVisitors, verifyRat, createNewRe, deleteRe, requestRat, getSingleRe, EditRe}
+const getDependants = async(req,res) =>{
+    const id = req.user
+    try{
+        const dependants = await dependantsModel.find({resId: id}).lean()
+        return res.status(201).json(dependants)
+    }catch(e){
+        res.status(500).json(e)
+    }
+}
+
+const addDependants = async (req, res) => {
+    const id = req.user;
+    const { firstname, lastname, number } = req.body; // Assuming phoneNumber is in the request body
+  
+    try {
+      const user = await residentsModel.findById(id);
+      if (!user) {
+        return res.sendStatus(403);
+      }
+  
+      const token =
+        randomizer.generate({ length: 4, charset: 'hex', capitalization: 'uppercase' }) +
+        randomizer.generate({ length: 1, charset: 'alphabetic', capitalization: 'uppercase' }) +
+        randomizer.generate({ length: 1, charset: 'number', capitalization: 'uppercase' });
+  
+      const dependant = new dependantsModel({
+        firstname,
+        lastname,
+        resId: id,
+        accessToken: token,
+        number, // Save the phone number
+      });
+  
+      await dependant.save();
+  
+      // Send an SMS to the dependant
+      const message = `PROTECTPRO: Hello ${firstname} ${lastname}, your access token is ${token}`;
+      await sendSMS(number, message);
+  
+      return res.status(201).json(dependant);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  };
+  
+
+const updateDependant = async (req, res) => {
+    const { id } = req.params; // Assuming the dependant's ID is passed in the URL
+    const { firstname, lastname } = req.body;
+  
+    try {
+      // Check if the dependant exists
+      const dependant = await dependantsModel.findById(id);
+  
+      if (!dependant) {
+        return res.status(404).json({ error: "Dependant not found" });
+      }
+  
+      // Update the dependant's information
+      dependant.firstname = firstname;
+      dependant.lastname = lastname;
+  
+      await dependant.save();
+  
+      return res.status(200).json(dependant);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  const deleteDependant = async (req, res) => {
+    const { id } = req.query; // Assuming the dependant's ID is passed in the URL
+    
+    try {
+      // Check if the dependant exists
+      const dependant = await dependantsModel.findById(id);
+  
+      if (!dependant) {
+        return res.status(404).json({ error: "Dependant not found" });
+      }
+  
+      // Delete the dependant
+      await dependantsModel.deleteOne({_id: id});
+  
+      return res.sendStatus(204); // 204 No Content indicates successful deletion
+    } catch (error) {
+        console.log(error)
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  };
+  
+  
+module.exports = {getAllEstateRecidents, getDependants, updateDependant, deleteDependant, getResidentVisitors, verifyRat, createNewRe, deleteRe, requestRat, getSingleRe, EditRe, addDependants}

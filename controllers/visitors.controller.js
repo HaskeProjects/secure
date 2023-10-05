@@ -60,7 +60,7 @@ const createNewVisitor = async(req, res) => {
     if(!found){
         const gen = new Vi({number, esId: isUser.esId, resId, inviteCode })
         await gen.save()
-        Estate.type.toLowerCase() !== 'office' && await sendSMS(number, mes1)
+        Estate?.type?.toLowerCase() !== 'office' && await sendSMS(number, mes1)
         return res.status(201).json({message: inviteCode})
     }
     Estate?.type?.toLowerCase() !== 'office' && await sendSMS(number, mes2)
