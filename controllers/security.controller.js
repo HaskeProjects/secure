@@ -179,17 +179,19 @@ const resetSecurityDetails = async(req, res) => {
 
 const verifyReAndDe = async(req, res) => {
     const id = req.user
-    const estate = await securityModel.findById(id)
-    const {code} = req.body
-    const dependant = await dependantsModel.findOne({accessToken: code})
-    const resd = await residentsModel.findOne({token:code, resId: estate._id})
+    const security = await securityModel.findById(id)
+    const {code} = req.query
+    const dependant = await dependantsModel.findOne({accessToken: code}).populate({path: 'apartment'})
+    const resd = await residentsModel.findOne({crat:code, esId: security.esId})
     if(!dependant && !resd) return res.sendStatus(404)
     if(dependant){
         const resident = await residentsModel.findById(dependant.resId)
-        if(estate._id !== resident.esId) return res.sendStatus(403)
-        return res.status(201).json({message: "Dependant found"})
+        if(security.esId.toString() !== resident.esId.toString()) return res.sendStatus(403)
+       
+        console.log(dependant)
+        return res.status(201).json(dependant)
     }
-    return res.status(201).json({message: "Resident found"})
+    return res.status(201).json({message: resd})
   }
 
 
