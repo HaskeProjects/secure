@@ -187,8 +187,6 @@ const verifyReAndDe = async(req, res) => {
     if(dependant){
         const resident = await residentsModel.findById(dependant.resId)
         if(security.esId.toString() !== resident.esId.toString()) return res.sendStatus(403)
-       
-        console.log(dependant)
         return res.status(201).json(dependant)
     }
     return res.status(201).json({message: resd})
