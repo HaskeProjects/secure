@@ -48,7 +48,7 @@ const changeChair = async(req, res) => {
     if(newChairNumber) found.number = newChairNumber
     if(resetPass) {
         const secpassword = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'uppercase'})+randomizer.generate({length:3,charset: 'hex',capitalization: 'uppercase'})
-        const mes = `From ProtectPro: \n Dear Estate Chairman/Representative. This is your new login ${secpassword}. Please use new chairman/Representative phone number where required.`
+        const mes = `From PROTECTPRO: \n Dear Estate Chairman/Representative. This is your new login ${secpassword}. Please use new chairman/Representative phone number where required.`
         const sechashed = await bcrypt.hash(secpassword, 10)
         found.password = sechashed
         sendSMS(found.number,mes)

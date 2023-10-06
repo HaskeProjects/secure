@@ -10,6 +10,8 @@ const jwt = require('jsonwebtoken')
 const testval = require('../utils/testval')
 const sendSMS = require("../utils/sms")
 const chairmenModel = require("../models/chairmen.model")
+const dependantsModel = require("../models/dependants.model")
+const residentsModel = require("../models/residents.model")
 
 const getSecurity = async(req, res) => {
     const secId = req.user
@@ -165,7 +167,7 @@ const resetSecurityDetails = async(req, res) => {
     const userid = randomizer.generate({length:3, charset: 'alphabetic',capitalization: 'lowercase'})+randomizer.generate({length:3, charset: 'hex',capitalization: 'lowercase'})
     const user = `rp@${userid}`
     const sechashed = await bcrypt.hash(secpassword, 10)
-        const mes = `From ProtectPro: \n  Dear Estate Chairman/Representative. This is your new guards login details: Guard 1: ${user}, Guard 2: ${secpassword}`
+        const mes = `From PROTECTPRO: \n  Dear Estate Chairman/Representative. This is your new guards login details: Guard 1: ${user}, Guard 2: ${secpassword}`
         found.password = sechashed
         found.user = user
         const chairman = await chairmenModel.findOne({esId: found.esId})
@@ -175,4 +177,20 @@ const resetSecurityDetails = async(req, res) => {
         return res.status(201).json({message:'sent'})
 }
 
-module.exports = {LoginSec, getSecurity, checkin, checkout, resetSecurityDetails, ncheckin}
+const verifyReAndDe = async(req, res) => {
+    const id = req.user
+    const estate = await securityModel.findById(id)
+    const {code} = req.body
+    const dependant = await dependantsModel.findOne({accessToken: code})
+    const resd = await residentsModel.findOne({token:code, resId: estate._id})
+    if(!dependant && !resd) return res.sendStatus(404)
+    if(dependant){
+        const resident = await residentsModel.findById(dependant.resId)
+        if(estate._id !== resident.esId) return res.sendStatus(403)
+        return res.status(201).json({message: "Dependant found"})
+    }
+    return res.status(201).json({message: "Resident found"})
+  }
+
+
+module.exports = {LoginSec, verifyReAndDe, getSecurity, checkin, checkout, resetSecurityDetails, ncheckin}
