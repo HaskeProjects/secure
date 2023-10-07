@@ -18,7 +18,7 @@ const sendSMS = async(num, message) => {
           },
           body: JSON.stringify({
             body: message,
-            from: "ProtectPro",
+            from: "PROTECTPRO",
             to: num,
             api_token: "H0SJvKTktd0S1BNw03RxXGCXlaSgBbk4V0c2dGGPljXSg6goc7tNapPnaB0j",
             gateway: "direct-refund"
